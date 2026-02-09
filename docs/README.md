@@ -57,6 +57,73 @@ A complete guide to understanding and developing with Joern, written in Chinese 
 **Target Audience**: Graduate students writing thesis on code analysis, Joern developers  
 **Joern Version**: v2.0+ (FlatGraph architecture)
 
+---
+
+### C代码解析流程详解.md (Chinese)
+**Detailed C Code Parsing Flow in Joern**
+
+An in-depth technical guide explaining how Joern parses C code, written in Chinese. This document provides a complete walkthrough of the parsing pipeline by examining the actual source code. It covers:
+
+1. **Overall Architecture** (第1章)
+   - Entry points and core classes (Main, C2Cpg, AstCreationPass, CdtParser, AstCreator)
+   - Architecture components and their responsibilities
+   - File locations and module organization
+
+2. **Detailed Parsing Flow** (第2章)
+   - Flow overview with ASCII diagrams
+   - Code path from file discovery to CPG generation
+   - Parallel processing with ForkJoinParallelCpgPass
+
+3. **AST Creation Phase** (第3章)
+   - CdtParser: Eclipse CDT parsing to IASTTranslationUnit
+   - AstCreator: CDT AST → Joern CPG AST conversion
+   - Detailed node and edge generation for:
+     - FILE, NAMESPACE_BLOCK nodes
+     - Function definitions (METHOD, METHOD_PARAMETER_IN, METHOD_RETURN, BLOCK)
+     - Variable declarations (LOCAL, CALL for assignment, LITERAL)
+     - Control flow statements (CONTROL_STRUCTURE, BLOCK)
+     - Function calls (CALL, arguments, LITERAL)
+   - Complete code examples from source showing exact node/edge creation
+
+4. **Base Layer Processing** (第4章)
+   - All 10 Base layer passes explained:
+     - FileCreationPass, NamespaceCreator, TypeDeclStubCreator, MethodStubCreator
+     - ParameterIndexCompatPass, MethodDecoratorPass, AstLinkerPass
+     - ContainsEdgePass, TypeRefPass, TypeEvalPass
+   - What nodes and edges each pass generates
+   - Examples of stub creation for external functions/types
+
+5. **CFG Layer Processing** (第5章)
+   - CfgCreationPass: Control flow graph construction
+   - Examples of CFG for basic blocks, branches, loops
+   - CfgDominatorPass: Dominator and post-dominator relationships
+   - CdgPass: Control dependence graph
+
+6. **Other Overlay Layers** (第6章)
+   - CallGraph layer: CALL → METHOD edge resolution
+   - TypeRelations layer: INHERITS_FROM, ALIAS_OF, field access linking
+
+7. **Complete Example** (第7章)
+   - Full C program with calculate() and main() functions
+   - Step-by-step parsing from source to final CPG
+   - Node count: ~60 nodes (FILE, METHOD, LOCAL, CALL, IDENTIFIER, etc.)
+   - Edge count: ~150 edges (AST, CFG, REF, EVAL_TYPE, CONTAINS, etc.)
+   - Detailed breakdown of every node and edge generated
+   
+8. **Summary** (第8章)
+   - Parsing flow hierarchy table
+   - Key design principles (parallelism, two-stage parsing, global context, trait composition)
+   - Debugging commands with Joern REPL
+   - Resources for further learning
+
+**File Size**: 28KB (1109 lines)  
+**Language**: Chinese (中文)  
+**Target Audience**: Developers and researchers who need to understand Joern's C parsing internals  
+**Joern Version**: v2.0+ (FlatGraph architecture)  
+**Source Code References**: Includes line numbers and file paths for all referenced code
+
+---
+
 ## Official Documentation
 
 For official Joern documentation, please visit:
