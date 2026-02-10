@@ -192,6 +192,89 @@ A detailed technical guide clarifying which data flow analyses Joern implements,
 
 ---
 
+### reachableByFlows算法详解.md (Chinese)
+**Deep Dive into Joern's Taint Analysis Algorithm: reachableByFlows**
+
+A comprehensive technical guide explaining Joern's core taint analysis algorithm in detail, written in Chinese. This document provides an in-depth walkthrough of the `reachableByFlows` implementation:
+
+1. **Overview** (第1章)
+   - What is reachableByFlows?
+   - API signature and basic usage
+   - Backward search strategy
+
+2. **Algorithm Principles** (第2章)
+   - Why backward search? (sink → source vs source → sink)
+   - Core algorithm idea with pseudocode
+   - Key design decisions table
+
+3. **Core Architecture** (第3章)
+   - Component relationship diagram (ExtendedCfgNode → Engine → TaskSolver/TaskCreator)
+   - Execution model with work-stealing thread pool
+   - Parallel task processing flow
+
+4. **Data Structures** (第4章)
+   - `TaskFingerprint`: Unique task identifier (node, callSiteStack, callDepth)
+   - `PathElement`: Path node with metadata (node, visible, isOutputArg, outEdgeLabel)
+   - `ReachableByResult`: Intermediate result (taskStack, path, partial flag)
+   - `ReachableByTask`: Work unit with task chain and initial path
+   - `TableEntry`: Final result entry
+   - `TaskSummary`: Task completion summary
+
+5. **Algorithm Flow** (第5章)
+   - Top-level `reachableByFlows()` flow with filtering and deduplication
+   - `Engine.backwards()` main loop: submit tasks → process completions → create new tasks
+   - Task submission logic: started tracking and held queue
+   - Complete flowchart with all steps
+
+6. **Key Components** (第6章)
+   - **TaskSolver**: Recursive backward expansion via `results()` method
+     - expandIn(): DDG edge traversal with cycle detection
+     - Visibility determination based on semantics
+     - Task-level caching mechanism
+   - **TaskCreator**: New task generation from partial results
+     - tasksForParams(): Parameter expansion (Case 1: context-sensitive, Case 2: context-insensitive)
+     - tasksForUnresolvedOutArgs(): Return value and output argument expansion
+   - **HeldTaskCompletion**: Iterative completion of held tasks
+
+7. **Performance Optimizations** (第7章)
+   - Parallel execution with work-stealing pool
+   - 3-level caching: task-internal, global result table, optional cross-query
+   - 3-level deduplication: within-task, held-task, final-result
+   - Cycle detection: path-level and task-chain-level
+   - Configuration limits: maxCallDepth, maxArgsToAllow, maxOutputArgsExpansion
+
+8. **Complete Example** (第8章)
+   - C code: readInput() → processData() → executeCommand() chain
+   - Step-by-step execution trace through all 7 phases
+   - Final complete path from fgets (source) to system (sink)
+   - Visual path representation with arrows
+
+9. **Configuration Parameters** (第9章)
+   - EngineContext and EngineConfig options
+   - Tuning recommendations table (simple programs vs complex call chains)
+
+10. **Summary** (第10章)
+    - Key features table
+    - Algorithm complexity analysis (worst-case O(N × D × B^D))
+    - Advantages: precision, scalability, flexibility
+    - Limitations: path explosion, depth limits, pointer analysis gaps
+    - Best practices checklist
+
+**File Size**: 24KB (1020+ lines)  
+**Language**: Chinese (中文)  
+**Target Audience**: Developers and researchers needing deep understanding of Joern's taint analysis internals  
+**Joern Version**: v2.0+ (FlatGraph architecture)  
+**Code References**: Detailed explanations with actual code snippets from:
+- ExtendedCfgNode.scala (reachableByFlows entry point)
+- Engine.scala (backwards search orchestration)
+- TaskSolver.scala (recursive DDG expansion)
+- TaskCreator.scala (task generation logic)
+- HeldTaskCompletion.scala (held task processing)
+
+**Includes**: Architecture diagrams, execution flow charts, complete worked example with 7-phase trace
+
+---
+
 ## Official Documentation
 
 For official Joern documentation, please visit:
