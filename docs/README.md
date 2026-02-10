@@ -124,6 +124,74 @@ An in-depth technical guide explaining how Joern parses C code, written in Chine
 
 ---
 
+### Joern数据流分析详解.md (Chinese)
+**Comprehensive Guide to Data Flow Analysis in Joern**
+
+A detailed technical guide clarifying which data flow analyses Joern implements, written in Chinese. This document addresses common questions about Joern's analysis capabilities:
+
+1. **Data Flow Analysis Overview** (第1章)
+   - Implementation status summary table
+   - Architecture and module locations
+   - Reaching Definitions ✅ (Fully implemented)
+   - Taint Analysis ✅ (Fully implemented)
+   - Pointer Analysis ❌ (Not implemented)
+   - Constant Propagation ⚠️ (Partially implemented)
+
+2. **Reaching Definitions Analysis** (第2章)
+   - MOP (Meet Over all Paths) algorithm implementation
+   - ReachingDefPass: Parallel processing with ForkJoinParallelCpgPass
+   - DataFlowSolver: Fixed-point iteration algorithm
+   - DdgGenerator: Data dependence graph (DDG) edge generation
+   - Code examples from ReachingDefPass.scala, DataFlowSolver.scala
+   - Usage examples with ddgIn API
+
+3. **Taint Analysis** (第3章)
+   - Backward path exploration engine
+   - Engine.scala: Core query engine with parallel task solving
+   - EngineContext: Configurable context (maxCallDepth, caching)
+   - DSL API: reachableBy(), reachableByFlows()
+   - Practical examples: buffer overflow, SQL injection, command injection detection
+
+4. **Pointer Analysis** (第4章)
+   - Clarification: Not implemented as standalone module
+   - Related functionality in DefaultSemantics (addressOf, indirection operators)
+   - Why not implemented: Complexity, language-agnostic design, alternative approaches
+
+5. **Constant Propagation** (第5章)
+   - Status: Only partially implemented in specific frontends
+   - JavaScriptImportResolverPass example: Simple string constant propagation
+   - Alternative approaches for constant-related analysis
+
+6. **Semantics System** (第6章)
+   - Semantics trait and FlowSemantic
+   - DefaultSemantics: 100+ built-in function/operator semantics
+   - operatorFlows: Assignment, addition, field access, etc.
+   - cFlows: C standard library (strcpy, malloc, sprintf, etc.)
+   - javaFlows: Java common methods
+   - Custom semantics: NilSemantics, NoCrossTaintSemantics
+   - Flow mapping notation: (src, dst) where -1 = return value
+
+7. **Practical Examples** (第7章)
+   - Command injection detection with full code
+   - SQL injection detection in Java
+   - Cross-procedural taint tracking
+   - Custom semantics for sanitization functions
+   - DDG visualization
+
+8. **Summary** (第8章)
+   - Implementation status table
+   - Advantages: Parallel efficiency, extensible semantics, cross-language
+   - Limitations: No pointer analysis, path explosion, call depth limits
+   - Best practices: Engine configuration, custom semantics, staged analysis
+
+**File Size**: 7KB (303 lines, simplified version)  
+**Language**: Chinese (中文)  
+**Target Audience**: Developers and researchers needing to understand Joern's data flow analysis capabilities  
+**Joern Version**: v2.0+ (FlatGraph architecture)  
+**Key Clarification**: Addresses the question "Does Joern implement Reaching Definitions, Taint Analysis, Pointer Analysis, and Constant Propagation?" with detailed evidence from source code
+
+---
+
 ## Official Documentation
 
 For official Joern documentation, please visit:
