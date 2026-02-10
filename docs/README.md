@@ -275,6 +275,103 @@ A comprehensive technical guide explaining Joern's core taint analysis algorithm
 
 ---
 
+### Joern路径探索与算法分析.md (Chinese)
+**Path Exploration and Algorithm Analysis in Joern - Q&A Format**
+
+A comprehensive Q&A document answering key questions about Joern's path exploration capabilities and algorithms, written in Chinese. This document addresses three critical questions:
+
+**Question 1: Forward vs Backward Path Exploration** (第1章)
+- **Answer**: Joern **only supports backward exploration**, no forward methods
+- Why backward-only? Security analysis focus (known sinks → find sources)
+- Implemented backward methods:
+  - `reachableBy()` - Find sources reachable to sinks
+  - `reachableByFlows()` - Return complete paths
+  - `ddgIn()` - One-step backward DDG traversal
+  - `Engine.backwards()` - Core backward algorithm
+- No forward equivalents: No `forwards()`, `ddgOut()`, or forward APIs
+- Why no forward? Path explosion, unclear targets, high cost, limited use cases
+- Workarounds if forward needed: Direct DDG edge traversal, reverse the question, custom traversal
+
+**Question 2: reachableByFlows and Taint Analysis Direction** (第2章)
+- **Answer**: Both use **backward search**
+- reachableByFlows execution flow:
+  ```
+  sinks.reachableByFlows(sources)
+    → Engine.backwards(sinks, sources)
+    → Start from sinks, search backward to sources
+  ```
+- Code evidence from ExtendedCfgNode.scala:76-82
+- Why taint analysis is backward:
+  - Goal: From known dangerous sinks, find pollution sources
+  - Efficiency: Only explores relevant paths
+  - Precision: Accurately identifies sources affecting specific sinks
+- Algorithm comparison table (reachableByFlows, taint analysis, DDG traversal)
+
+**Question 3: Notable Algorithms Beyond Taint Analysis** (第3章)
+
+**Algorithm 1: Reaching Definitions** (前向数据流分析)
+- Location: `passes/reachingdef/`
+- Classical dataflow analysis using MOP (Meet Over all Paths)
+- Components: ReachingDefPass, DataFlowSolver, ReachingDefProblem, DdgGenerator
+- Generates REACHING_DEF edges (basis for all dataflow analysis)
+- Direction: **Forward analysis**
+- Complexity: O(N × M)
+
+**Algorithm 2: Dominator Analysis** (控制流分析)
+- Location: `passes/controlflow/cfgdominator/`
+- Computes dominance relationships in CFG
+- Lengauer-Tarjan fast dominator algorithm
+- Generates DOMINATE and POST_DOMINATE edges
+- Direction: **Forward + Backward**
+- Complexity: O(N × α(N)) ≈ linear
+
+**Algorithm 3: Control Dependence Graph (CDG)** (控制依赖)
+- Location: `passes/controlflow/codepencegraph/`
+- Based on dominance frontiers
+- Generates CDG edges
+- Application: Program slicing, code optimization
+
+**Algorithm 4: Program Dependence Graph (PDG)** (程序依赖图)
+- Formula: PDG = DDG ∪ CDG
+- Combination of data and control dependencies
+- Used for visualization and comprehensive analysis
+
+**Algorithm 5: Program Slicing** (程序切片)
+- Location: `slicing/`
+- Two variants:
+  - DataFlowSlicing: Backward data flow slicing
+  - UsageSlicing: Variable usage tracking
+- Configurable slice depth
+- Parallel execution support
+
+**Additional Features:**
+- Semantics system: Defines dataflow behavior for functions/operators
+- Call graph: CALL edge generation and query
+- Type propagation: INHERITS_FROM, ALIAS_OF, EVAL_TYPE edges
+
+**Algorithm Comparison Table:**
+| Algorithm | Type | Direction | Complexity | Application |
+|-----------|------|-----------|------------|-------------|
+| Reaching Definitions | Dataflow | Forward | O(N×M) | DDG generation |
+| Taint Analysis | Dataflow | Backward | O(N×D×B^D) | Vulnerability detection |
+| Dominators | Control flow | Forward+Backward | O(N×α(N)) | CDG generation |
+| CDG | Control flow | - | O(N²) | Control dependencies |
+| Program Slicing | Combined | Backward | O(N×D) | Code understanding |
+
+**Summary Tables:**
+- Three questions answered comprehensively
+- Joern algorithm ecosystem diagram
+- Design philosophy: Security-centric, performance-first, pragmatic
+- Use case recommendations table
+
+**File Size**: 18KB (800+ lines)  
+**Language**: Chinese (中文)  
+**Format**: Q&A with detailed explanations  
+**Target Audience**: Developers needing clear answers about Joern's capabilities  
+**Code References**: Multiple source files with line numbers and implementation details
+
+---
+
 ## Official Documentation
 
 For official Joern documentation, please visit:
